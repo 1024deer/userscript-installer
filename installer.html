@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>油猴脚本批量安装器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      color: #2f3640;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #status {
+      margin: 20px 0;
+      font-size: 16px;
+      color: #444;
+    }
+    #progress-container {
+      width: 80%;
+      max-width: 500px;
+      margin: 20px auto;
+      background: #dcdde1;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    #progress-bar {
+      height: 20px;
+      width: 0;
+      background: #4cd137;
+      transition: width 0.5s ease;
+    }
+    #installBtn {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #0097e6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #installBtn:hover {
+      background: #0984e3;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+      text-align: left;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    li {
+      background: #fff;
+      margin: 6px 0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #dcdde1;
+      font-size: 14px;
+    }
+    .done {
+      color: #27ae60;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>油猴脚本批量安装器</h1>
+  <p>点击下方按钮，将依次打开所有脚本安装页面。</p>
+  <button id="installBtn">开始安装</button>
+  
+  <div id="status">等待开始...</div>
+  
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <ul id="scriptList"></ul>
+
+  <script>
+    const apiUrl = "https://1024deer.github.io/userscript-installer/scripts.json";
+
+    const btn = document.getElementById("installBtn");
+    const status = document.getElementById("status");
+    const progressBar = document.getElementById("progress-bar");
+    const scriptList = document.getElementById("scriptList");
+
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      btn.innerText = "加载中...";
+
+      fetch(apiUrl)
+        .then(res => res.json())
+        .then(scriptUrls => {
+          if (!Array.isArray(scriptUrls)) {
+            alert("API 返回格式错误，必须是数组！");
+            return;
+          }
+
+          let total = scriptUrls.length;
+          let completed = 0;
+
+          status.innerText = `共 ${total} 个脚本，准备安装...`;
+          scriptUrls.forEach(url => {
+            let li = document.createElement("li");
+            li.innerText = url;
+            scriptList.appendChild(li);
+          });
+
+          scriptUrls.forEach((url, i) => {
+            setTimeout(() => {
+              window.open(url, "_blank");
+
+              completed++;
+              status.innerText = `正在安装：${completed}/${total}`;
+              progressBar.style.width = (completed / total * 100) + "%";
+
+              scriptList.children[i].classList.add("done");
+              scriptList.children[i].innerHTML = `✅ 已打开：<a href="${url}" target="_blank">${url}</a>`;
+
+              if (completed === total) {
+                status.innerText = "所有脚本已打开，请在弹出的页面确认安装。";
+                btn.innerText = "完成";
+              }
+            }, i * 1500); // 每隔 1.5 秒打开一个
+          });
+        })
+        .catch(err => {
+          console.error("获取脚本列表失败:", err);
+          alert("加载脚本列表失败，请检查 API。");
+        });
+    });
+  </script>
+</body>
+</html>
