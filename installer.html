@@ -10,129 +10,306 @@
       color: #2f3640;
       text-align: center;
       padding: 40px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
     h1 {
       margin-bottom: 10px;
+      color: #0097e6;
+    }
+    .description {
+      margin-bottom: 20px;
+      color: #666;
     }
     #status {
       margin: 20px 0;
       font-size: 16px;
       color: #444;
+      padding: 10px;
+      background: #f1f2f6;
+      border-radius: 6px;
     }
     #progress-container {
-      width: 80%;
-      max-width: 500px;
+      width: 100%;
       margin: 20px auto;
       background: #dcdde1;
       border-radius: 20px;
       overflow: hidden;
+      height: 25px;
     }
     #progress-bar {
-      height: 20px;
+      height: 100%;
       width: 0;
-      background: #4cd137;
+      background: linear-gradient(90deg, #00b894, #00cec9);
       transition: width 0.5s ease;
+      border-radius: 20px;
     }
     #installBtn {
-      padding: 12px 24px;
+      padding: 14px 28px;
       font-size: 16px;
       background: #0097e6;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s;
+      font-weight: bold;
     }
     #installBtn:hover {
       background: #0984e3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0, 151, 230, 0.3);
+    }
+    #installBtn:disabled {
+      background: #dcdde1;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
     ul {
       list-style: none;
       padding: 0;
-      margin-top: 20px;
+      margin-top: 30px;
       text-align: left;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
     }
     li {
       background: #fff;
-      margin: 6px 0;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #dcdde1;
+      margin: 10px 0;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
       font-size: 14px;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s;
+    }
+    li:hover {
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
     }
     .done {
       color: #27ae60;
       font-weight: bold;
+      border-color: #27ae60;
+      background-color: #f1fff8;
+    }
+    .error {
+      color: #e84118;
+      background-color: #fff8f7;
+      border-color: #e84118;
+    }
+    .error-message {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff8f7;
+      border: 1px solid #e84118;
+      border-radius: 8px;
+      color: #e84118;
+      text-align: left;
+      display: none;
+    }
+    .info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 14px;
+    }
+    .info h3 {
+      margin-top: 0;
+      color: #0097e6;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .step-number {
+      background: #0097e6;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 151, 230, 0.3);
+      border-radius: 50%;
+      border-top-color: #0097e6;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <h1>油猴脚本批量安装器</h1>
-  <p>点击下方按钮，将依次打开所有脚本安装页面。</p>
-  <button id="installBtn">开始安装</button>
-  
-  <div id="status">等待开始...</div>
-  
-  <div id="progress-container">
-    <div id="progress-bar"></div>
-  </div>
+  <div class="container">
+    <h1>油猴脚本批量安装器</h1>
+    <p class="description">点击下方按钮，将依次打开所有脚本安装页面。请确保允许浏览器弹出窗口。</p>
+    
+    <button id="installBtn">开始安装</button>
+    
+    <div id="status">等待开始...</div>
+    
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
 
-  <ul id="scriptList"></ul>
+    <ul id="scriptList"></ul>
+    
+    <div id="errorMessage" class="error-message">
+      <strong>错误信息：</strong>
+      <span id="errorText"></span>
+    </div>
+    
+    <div class="info">
+      <h3>使用说明：</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <div>点击"开始安装"按钮</div>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div>在弹出的页面上点击"安装"按钮</div>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div>对每个弹出的页面重复此操作</div>
+      </div>
+      <p><strong>注意：</strong> 如果安装过程中断，您可以随时再次点击"开始安装"按钮继续。</p>
+    </div>
+  </div>
 
   <script>
     const apiUrl = "https://1024deer.github.io/userscript-installer/scripts.json";
-
     const btn = document.getElementById("installBtn");
     const status = document.getElementById("status");
     const progressBar = document.getElementById("progress-bar");
     const scriptList = document.getElementById("scriptList");
+    const errorMessage = document.getElementById("errorMessage");
+    const errorText = document.getElementById("errorText");
+
+    // 显示错误信息
+    function showError(message) {
+      errorText.textContent = message;
+      errorMessage.style.display = 'block';
+      status.innerHTML = `<span style="color: #e84118;">错误: ${message}</span>`;
+      btn.disabled = false;
+      btn.innerText = "重试";
+    }
+
+    // 验证JSON格式
+    function isValidJSON(str) {
+      try {
+        JSON.parse(str);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
 
     btn.addEventListener("click", () => {
       btn.disabled = true;
       btn.innerText = "加载中...";
+      errorMessage.style.display = 'none';
+      status.innerHTML = `<div class="loading"></div> 正在获取脚本列表...`;
 
       fetch(apiUrl)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`网络响应错误: ${res.status} ${res.statusText}`);
+          }
+          return res.text();
+        })
+        .then(text => {
+          // 验证JSON格式
+          if (!isValidJSON(text)) {
+            // 尝试修复常见的JSON格式错误
+            const fixedText = text
+              .trim()
+              .replace(/,\s*]/g, ']') // 移除尾随逗号
+              .replace(/,\s*}/g, '}') // 移除对象中的尾随逗号
+              .replace(/[\x00-\x1F\x7F]/g, ''); // 移除控制字符
+              
+            if (!isValidJSON(fixedText)) {
+              throw new Error("API返回的JSON格式无效。请检查JSON文件格式。");
+            }
+            
+            // 使用修复后的JSON
+            return JSON.parse(fixedText);
+          }
+          
+          return JSON.parse(text);
+        })
         .then(scriptUrls => {
           if (!Array.isArray(scriptUrls)) {
-            alert("API 返回格式错误，必须是数组！");
-            return;
+            throw new Error("API返回格式错误，必须是数组！");
+          }
+          
+          if (scriptUrls.length === 0) {
+            throw new Error("脚本列表为空！");
           }
 
           let total = scriptUrls.length;
           let completed = 0;
 
           status.innerText = `共 ${total} 个脚本，准备安装...`;
+          scriptList.innerHTML = '';
+          
+          // 创建脚本列表
           scriptUrls.forEach(url => {
             let li = document.createElement("li");
-            li.innerText = url;
+            li.innerHTML = `<div class="loading"></div> 等待打开: ${url}`;
             scriptList.appendChild(li);
           });
 
+          // 依次打开每个脚本
           scriptUrls.forEach((url, i) => {
             setTimeout(() => {
-              window.open(url, "_blank");
+              try {
+                window.open(url, "_blank");
+                
+                completed++;
+                const percent = Math.round((completed / total) * 100);
+                status.innerText = `正在安装：${completed}/${total} (${percent}%)`;
+                progressBar.style.width = percent + "%";
 
-              completed++;
-              status.innerText = `正在安装：${completed}/${total}`;
-              progressBar.style.width = (completed / total * 100) + "%";
+                scriptList.children[i].classList.add("done");
+                scriptList.children[i].innerHTML = `✅ 已打开：<a href="${url}" target="_blank">${url}</a>`;
 
-              scriptList.children[i].classList.add("done");
-              scriptList.children[i].innerHTML = `✅ 已打开：<a href="${url}" target="_blank">${url}</a>`;
-
-              if (completed === total) {
-                status.innerText = "所有脚本已打开，请在弹出的页面确认安装。";
-                btn.innerText = "完成";
+                if (completed === total) {
+                  status.innerText = "所有脚本已打开，请在弹出的页面确认安装。";
+                  btn.innerText = "完成";
+                  btn.disabled = true;
+                }
+              } catch (err) {
+                scriptList.children[i].classList.add("error");
+                scriptList.children[i].innerHTML = `❌ 打开失败：${url}`;
+                console.error(`打开 ${url} 失败:`, err);
               }
             }, i * 1500); // 每隔 1.5 秒打开一个
           });
         })
         .catch(err => {
           console.error("获取脚本列表失败:", err);
-          alert("加载脚本列表失败，请检查 API。");
+          showError(err.message || "加载脚本列表失败，请检查API。");
         });
     });
   </script>
